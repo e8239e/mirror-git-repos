@@ -1,0 +1,7 @@
+/.direnv/
+.nixd.json
+.ccls-cache/
+events.json
+compile_commands.json
+*.o
+mirror-git-repos
