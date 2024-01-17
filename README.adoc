@@ -1,0 +1,26 @@
+= mirror-git-repos
+:reproducible:
+
+Simple C++ _script_ for mirroring git repos
+
+Requires git & git-lfs to present in PATH at runtime.
+
+The first (and only) argument is the path to the directory where the mirrors are located.
+
+Every entry (file in directory) is processed in separate thread.
+
+Exit code is `total_error_count % 255` (if total_error_count is exactly 255, the exit code is 255) (only exit codes 0 to 255 are valid).
+
+If the file is a directory, then `git remote update`, `git gc`, `git lfs fetch --all` are run in it (assuming each dir is a bare git repo initialized with `git clone --mirror`).
+
+If it's a regular file, the first line is read (assuming each file contains the URL to the remote repo as the first line (only the first line is read)), the file is renamed, bare git repo is initialized with `git clone --mirror` and then updated with the commands above, if the cloning fails, the file is renamed back, otherwise the file is deleted.
+
+All output (both stderr and stdout) is outputted on stdout with _thread prefix_ (path that thread is precessing).
+
+This tool is intended to be run periodically via systemd timers or cron.
+
+== Compilation
+
+Only C++ compiler with C{plus}{plus}20 standard is required.
+
+There is Nix shell, you can enter repo dir, type `nix develop` or `nix-shell` and then `make <make target>`.
