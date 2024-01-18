@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <numeric> // std::reduce
 #include <regex>
 #include <string>
@@ -35,15 +36,14 @@ bool run_in_path(const std::fs::path path, const char *command)
 	if ((cmd_output = popen(cmd.c_str(), "r")) == nullptr) {
 		return false;
 	}
-	const auto buf = new char[512];
-	while (std::fgets(buf, 512, cmd_output) != nullptr) {
+	const auto buf = std::make_unique<char[]>(512);
+	while (std::fgets(buf.get(), 512, cmd_output) != nullptr) {
 		if (buf != nullptr) {
-			auto line = std::string(buf);
+			auto line = std::string(buf.get());
 			INFO_TO(cout,
 				" (CMD \"" << command << "\"): " << std::regex_replace(line, pattern, ""));
 		}
 	}
-	delete[] buf;
 	const auto exit_code = pclose(cmd_output) % 255;
 	return static_cast<bool>(!exit_code);
 }
